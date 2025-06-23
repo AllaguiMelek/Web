@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta property="og:image" content="images/banner.jpg">
     <meta property="og:description" content="Consulter mon parcours et mes projets sur mon site.">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,21 +25,21 @@
     <nav class="navbar">
         <div class="max-width">
             <div class="logo">
-                <a href="#">
+                <a href="#home">
                     <span class="logo-text">Allagui Melek</span>
                 </a>
             </div>
-            <ul class="menu">
-                <li><a href="#home" class="menu-btn active"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="#about" class="menu-btn"><i class="fas fa-user"></i> About</a></li>
-                <li><a href="#services" class="menu-btn"><i class="fas fa-cogs"></i> Services</a></li>
-                <li><a href="#skills" class="menu-btn"><i class="fas fa-code"></i> Skills</a></li>
-                <li><a href="#teams" class="menu-btn"><i class="fas fa-project-diagram"></i> Projects</a></li>
-                <li><a href="#contact" class="menu-btn"><i class="fas fa-envelope"></i> Contact</a></li>
-            </ul>
             <div class="menu-btn">
                 <i class="fas fa-bars"></i>
             </div>
+            <ul class="menu">
+                <li><a href="#home" class="menu-btn active" data-section="home"><i class="fas fa-home"></i><span>Home</span></a></li>
+                <li><a href="#about" class="menu-btn" data-section="about"><i class="fas fa-user"></i><span>About</span></a></li>
+                <li><a href="#services" class="menu-btn" data-section="services"><i class="fas fa-cogs"></i><span>Services</span></a></li>
+                <li><a href="#skills" class="menu-btn" data-section="skills"><i class="fas fa-code"></i><span>Skills</span></a></li>
+                <li><a href="#teams" class="menu-btn" data-section="teams"><i class="fas fa-project-diagram"></i><span>Projects</span></a></li>
+                <li><a href="#contact" class="menu-btn" data-section="contact"><i class="fas fa-envelope"></i><span>Contact</span></a></li>
+            </ul>
         </div>
     </nav>
 

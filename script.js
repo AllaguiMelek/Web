@@ -9,232 +9,192 @@ $(document).ready(function(){
         delay: 100
     });
 
-    // Dynamic navbar background with gradient
-    $(window).scroll(function(){
-        if(this.scrollY > 20){
-            $('.navbar').addClass("sticky");
-            $('.navbar').css('background', 'linear-gradient(135deg, rgba(46, 204, 113, 0.95), rgba(52, 152, 219, 0.95))');
-        }else{
-            $('.navbar').removeClass("sticky");
-            $('.navbar').css('background', 'rgba(26, 26, 26, 0.95)');
-        }
+    // Track menu state
+    let isMenuOpen = false;
 
-        // Enhanced scroll-up button with animation
-        if(this.scrollY > 500){
-            $('.scroll-up-btn').addClass("show");
-        }else{
-            $('.scroll-up-btn').removeClass("show");
-        }
-
-        // Dynamic active menu highlighting with smooth transition
-        let current = '';
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.navbar .menu li a');
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= (sectionTop - sectionHeight/3)) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href').substring(1) === current) {
-                link.classList.add('active');
-                // Add pulse animation to active link
-                link.style.animation = 'pulse 1s infinite';
-            } else {
-                link.style.animation = 'none';
-            }
-        });
-
-        // Enhanced skill bars animation with progress tracking
-        function animateSkillBars() {
-            $('.skills .line').each(function() {
-                const percentageText = $(this).prev('.info').find('span:last-child').text();
-                const percentage = percentageText;
-                
-                // Only animate if not already animated
-                if (!$(this).data('animated')) {
-                    $(this).css({
-                        'width': percentage,
-                        'transition': 'width 1.5s ease-in-out'
-                    });
-                    $(this).data('animated', true);
-                }
-            });
-        }
-
-        // Trigger skill bar animation only when skills section is in view
-        const skillsSection = document.getElementById('skills');
-        if (skillsSection) {
-            const skillsSectionTop = skillsSection.offsetTop;
-            const skillsSectionHeight = skillsSection.clientHeight;
-            const viewportTop = $(window).scrollTop();
-            const viewportHeight = $(window).height();
-
-            // Adjust offset as needed
-            const offset = 200;
-
-            if (skillsSectionTop < viewportTop + viewportHeight - offset && skillsSectionTop + skillsSectionHeight > viewportTop + offset) {
-                animateSkillBars();
-            }
-        }
+    // Enhanced menu button functionality
+    $('.menu-btn').click(function(e){
+        e.stopPropagation();
+        isMenuOpen = !isMenuOpen;
+        toggleMenu();
     });
 
-    // Scroll up button click event with faster animation
-    $('.scroll-up-btn').click(function(){
-        $('html, body').animate({scrollTop: 0}, 300);
-    });
-
-    // Trigger skill bar animation initially on document ready if in view
-    animateSkillBars();
-
-    // Enhanced smooth scroll with dynamic offset and easing
-    $('.navbar .menu li a, .scroll-up-btn').click(function(e){
-        e.preventDefault();
-        const target = $(this).attr('href');
-        
-        // Close mobile menu with animation
-        $('.navbar .menu').removeClass("active");
-        $('.menu-btn i').removeClass("active");
-
-        // Dynamic scroll with offset and easing
-        const targetPosition = $(target).offset().top - 70;
-        window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-        });
-
-        // Update active state with animation
-        $('.navbar .menu li a').removeClass('active');
-        $(this).addClass('active');
-    });
-
-    // Enhanced menu button animation
-    $('.menu-btn').click(function(){
+    // Function to toggle menu state
+    function toggleMenu() {
         $('.navbar .menu').toggleClass("active");
         $('.menu-btn i').toggleClass("active");
         
-        // Add slide animation to menu items
-        $('.navbar .menu li').each(function(index) {
-            $(this).css({
-                'animation': `slideIn 0.5s ease forwards ${index * 0.1}s`
+        if(isMenuOpen) {
+            $('body').css('overflow', 'hidden'); // Prevent background scrolling
+            // Animate menu items
+            $('.navbar .menu li').each(function(index) {
+                $(this).css({
+                    'animation': `slideIn 0.5s ease forwards ${index * 0.1}s`,
+                    'opacity': '0'
+                });
             });
-        });
+        } else {
+            $('body').css('overflow', ''); // Restore scrolling
+            $('.navbar .menu li').css({
+                'animation': 'none',
+                'opacity': '1'
+            });
+        }
+    }
+
+    // Close menu when clicking outside
+    $(document).click(function(e) {
+        if (isMenuOpen && !$(e.target).closest('.navbar .menu, .menu-btn').length) {
+            isMenuOpen = false;
+            toggleMenu();
+        }
     });
 
-    // Typewriter animation
-    const line1 = document.getElementById("line1");
-    const line2 = document.getElementById("line2");
-    const line3 = document.getElementById("line3");
-
-    // Add blinking cursor animation to all lines
-    [line1, line2, line3].forEach(line => {
-        line.style.animation = `${line.style.animation}, blink 0.7s step-end infinite`;
+    // Prevent menu close when clicking inside menu
+    $('.navbar .menu').click(function(e) {
+        e.stopPropagation();
     });
 
-    // Enhanced project carousel with better animations
-    $('.carousel').owlCarousel({
-        margin: 20,
-        loop: true,
-        autoplay: true,
-        autoplayTimeout: 4000,
-        autoplayHoverPause: true,
-        smartSpeed: 1000,
-        animateIn: 'fadeIn',
-        animateOut: 'fadeOut',
-        responsive: {
-            0:{
-                items: 1,
-                nav: false
-            },
-            600:{
-                items: 2,
-                nav: false
-            },
-            1000:{
-                items: 3,
-                nav: false
+    // Close menu when clicking a menu item
+    $('.navbar .menu li a').click(function(e){
+        e.preventDefault();
+        const target = $(this).attr('href');
+        
+        // Close menu if open
+        if(isMenuOpen) {
+            isMenuOpen = false;
+            toggleMenu();
+        }
+
+        // Improved scroll to section
+        scrollToSection(target);
+    });
+
+    // Improved function to handle smooth scrolling and offset
+    function scrollToSection(target) {
+        // Dynamic offset based on screen size
+        let offset = 100;
+        if($(window).width() <= 947) {
+            offset = 60;
+        }
+        if($(window).width() <= 500) {
+            offset = 50;
+        }
+        
+        const $targetElement = $(target);
+        if($targetElement.length) {
+            let scrollTarget = $targetElement.offset().top - offset;
+            if (scrollTarget < 0) scrollTarget = 0;
+            // Only scroll if not already at the right position
+            if (Math.abs($(window).scrollTop() - scrollTarget) > 2) {
+                $('html, body').animate({scrollTop: scrollTarget}, 400);
+            }
+            // Update URL without triggering scroll
+            if(history.pushState) {
+                history.pushState(null, null, target);
             }
         }
+    }
+
+    // Handle scroll events
+    $(window).scroll(function(){
+        const scrollPos = $(this).scrollTop();
+
+        // Sticky navbar on scroll
+        if(scrollPos > 20){
+            $('.navbar').addClass("sticky");
+        } else {
+            $('.navbar').removeClass("sticky");
+        }
+
+        // Scroll-up button display
+        if(scrollPos > 500){
+            $('.scroll-up-btn').addClass("show");
+        } else {
+            $('.scroll-up-btn').removeClass("show");
+        }
+
+        // Update active menu item
+        updateActiveMenuItem(scrollPos);
     });
 
-    // Add hover effects to project cards
-    $('.teams .card').hover(
-        function() {
-            $(this).css({
-                'transform': 'translateY(-10px)',
-                'box-shadow': '0 10px 20px rgba(0,0,0,0.2)'
-            });
-        },
-        function() {
-            $(this).css({
-                'transform': 'translateY(0)',
-                'box-shadow': '0 5px 15px rgba(0,0,0,0.1)'
-            });
-        }
-    );
+    // Function to update active menu item
+    function updateActiveMenuItem(scrollPos) {
+        const navLinks = $('.navbar .menu li a');
+        const sections = $('section');
+        
+        sections.each(function() {
+            const top = $(this).offset().top - 100;
+            const bottom = top + $(this).outerHeight();
+            
+            if (scrollPos >= top && scrollPos <= bottom) {
+                const currentId = $(this).attr('id');
+                navLinks.removeClass('active');
+                $(`.navbar .menu li a[href="#${currentId}"]`).addClass('active');
+            }
+        });
+    }
 
-    // Add hover effects to contact cards
-    $('.contact-card').hover(
-        function() {
-            $(this).css({
-                'transform': 'translateY(-5px)',
-                'box-shadow': '0 10px 20px rgba(0,0,0,0.1)'
-            });
-            $(this).find('.icon').css({
-                'transform': 'scale(1.1)',
-                'background': 'linear-gradient(135deg, #2ecc71, #3498db)'
-            });
-        },
-        function() {
-            $(this).css({
-                'transform': 'translateY(0)',
-                'box-shadow': '0 5px 15px rgba(0,0,0,0.05)'
-            });
-            $(this).find('.icon').css({
-                'transform': 'scale(1)',
-                'background': '#2ecc71'
-            });
-        }
-    );
-    // Add hover effects to social items
-    $('.social-item').hover(
-        function() {
-            $(this).css({
-                'transform': 'translateY(-5px)',
-                'box-shadow': '0 5px 15px rgba(0,0,0,0.1)'
-            });
-            $(this).find('i').css({
-                'transform': 'scale(1.2)',
-                'color': '#2ecc71'
-            });
-        },
-        function() {
-            $(this).css({
-                'transform': 'translateY(0)',
-                'box-shadow': '0 2px 5px rgba(0,0,0,0.05)'
-            });
-            $(this).find('i').css({
-                'transform': 'scale(1)',
-                'color': '#fff'});
-        }
-    );
+    // Scroll up button with instant scroll
+    $('.scroll-up-btn').click(function(){
+        $('html, body').scrollTop(0);
+        return false;
+    });
 
-    // Add hover effects to social links in footer
-    $('.social a').hover(
-        function() {
-            $(this).css({
-                'transform': 'translateY(-3px)',
-                'box-shadow': '0 5px 15px rgba(0,0,0,0.2)'});
-        },
-        function() {
-            $(this).css({
-                'transform': 'translateY(0)',
-                'box-shadow': '0 2px 5px rgba(0,0,0,0.1)'});
+    // Initial active menu item update
+    updateActiveMenuItem($(window).scrollTop());
+
+    // Handle window resize
+    let resizeTimer;
+    $(window).resize(function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            // Close menu if open on larger screens
+            if($(window).width() > 947 && isMenuOpen) {
+                isMenuOpen = false;
+                toggleMenu();
+            }
+        }, 250);
+    });
+
+    // Enhanced skill bars animation with progress tracking
+    function animateSkillBars() {
+        $('.skills .line').each(function() {
+            const percentageText = $(this).prev('.info').find('span:last-child').text();
+            const percentage = percentageText;
+            
+            // Only animate if not already animated
+            if (!$(this).data('animated')) {
+                $(this).css({
+                    'width': percentage,
+                    'transition': 'width 1.5s ease-in-out'
+                });
+                $(this).data('animated', true);
+            }
+        });
+    }
+
+    // Trigger skill bar animation only when skills section is in view
+    const skillsSection = document.getElementById('skills');
+    if (skillsSection) {
+        const skillsSectionTop = skillsSection.offsetTop;
+        const skillsSectionHeight = skillsSection.clientHeight;
+        const viewportTop = $(window).scrollTop();
+        const viewportHeight = $(window).height();
+
+        // Adjust offset as needed
+        const offset = 200;
+
+        if (skillsSectionTop < viewportTop + viewportHeight - offset && skillsSectionTop + skillsSectionHeight > viewportTop + offset) {
+            animateSkillBars();
         }
-    );
-}); 
+    }
+});
+
+// Add easing function if not already included
+if (typeof jQuery.easing['easeInOutQuad'] === 'undefined') {
+    jQuery.easing['easeInOutQuad'] = function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t + b;
+        return -c/2 * ((--t)*(t-2) - 1) + b;
+    };
+} 
